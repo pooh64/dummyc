@@ -1,8 +1,7 @@
-#include <ralloc.h>
-#include <common.h>
-#include <list.h>
-#include <logger.h>
+#include "ralloc.h"
+#include "logger.h"
 #include <stdlib.h>
+#include <string.h>
 
 struct ablock {
 	struct slist_head list;
@@ -53,6 +52,11 @@ alloc_new:
 alloc_out:
 	ab->cur += sz;
 	return ab->cur - sz;
+}
+
+void *rcalloc(aregion_t *ar, size_t sz)
+{
+	return memset(ralloc(ar, sz), 0, sz);
 }
 
 void rfree(aregion_t *ar)

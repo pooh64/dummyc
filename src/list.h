@@ -1,11 +1,16 @@
 #ifndef __LIST_H
 #define __LIST_H
 
-#include <common.h>
+#include "common.h"
 
 struct slist_head {
 	struct slist_head *next;
 };
+
+#define SLIST_HEAD_INIT                                                        \
+	{                                                                      \
+		.next = NULL                                                   \
+	}
 
 static inline void slist_head_init(struct slist_head *h)
 {
@@ -51,6 +56,12 @@ static inline struct slist_head *slist_pop_head(struct slist_head *h)
 	     p = slist_entry_safe((p)->m.next, typeof(*(p)), m))
 
 #define DECLARE_HTABLE(name, bits) struct slist_head name[1 << (bits)]
-#define htable_add(ht, hv, n) slist_add_head(&ht[min((size_t) hv, ARRAY_SIZE(ht)], n)
+
+#define htable_bucket(ht, key) ((size_t)key & (ARRAY_SIZE(ht) - 1))
+
+#define htable_add(ht, key, n) slist_add_head(&ht[htable_bucket(ht, key)], n)
+
+#define htable_for_each_possible(ht, obj, m, key)                              \
+	slist_for_each_entry(&ht[htable_bucket(ht, key)], obj, m)
 
 #endif
